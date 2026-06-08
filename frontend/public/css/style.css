@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: Tahoma, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.device-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+.status {
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.device-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.device-item {
+  padding: 14px;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #111827;
+  border: 1px solid #c7d2fe;
+}
+
+.device-item.selected {
+  background: #c7d2fe;
+  border-color: #818cf8;
+}

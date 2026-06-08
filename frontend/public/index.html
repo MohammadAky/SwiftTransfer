@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SwiftTransfer - دستگاه‌ها</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <h1>SwiftTransfer</h1>
+            <p>دستگاه‌های متصل به سرور را در این صفحه ببینید.</p>
+        </header>
+
+        <section class="device-panel">
+            <div class="status">
+                <strong>نام دستگاه من:</strong>
+                <span id="myDeviceName">در حال بارگذاری...</span>
+            </div>
+            <div id="deviceList" class="device-list">در حال انتظار برای دریافت دستگاه‌ها...</div>
+        </section>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

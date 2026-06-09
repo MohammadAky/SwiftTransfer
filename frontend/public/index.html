@@ -1,31 +1,195 @@
-<!doctype html>
-<html lang="fa">
+<!DOCTYPE html>
+<!--
+  index.html — LAN File Transfer App Shell
+  ==========================================
+  ARCHITECTURE: This is a single-page application (SPA).
+  All routing, state, and UI updates happen in JavaScript.
+  The server only serves this file once; after that, Socket.IO
+  and WebRTC handle all communication.
+-->
+<html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SwiftTransfer - دستگاه‌ها</title>
+    <title>LAN Transfer — ShareIt for your Browser</title>
+
+    <!-- Google Fonts: JetBrains Mono for techy feel, Plus Jakarta Sans for UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <!-- Main stylesheet -->
     <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Socket.IO client — loaded from our own server -->
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
 </head>
 
 <body>
-    <div class="page">
-        <header>
-            <h1>SwiftTransfer</h1>
-            <p>دستگاه‌های متصل به سرور را در این صفحه ببینید.</p>
-        </header>
 
-        <section class="device-panel">
-            <div class="status">
-                <strong>نام دستگاه من:</strong>
-                <span id="myDeviceName">در حال بارگذاری...</span>
+    <!-- ═══════════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════════════ -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">LAN<strong>Transfer</strong></span>
             </div>
-            <div id="deviceList" class="device-list">در حال انتظار برای دریافت دستگاه‌ها...</div>
+            <div class="server-badge" id="serverBadge">
+                <span class="badge-dot"></span>
+                <span id="serverUrl">Connecting…</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="device-name-wrap">
+                <span class="label">Your device:</span>
+                <input id="deviceNameInput" class="device-name-input" type="text" maxlength="30"
+                    placeholder="My Device" />
+            </div>
+            <button class="btn btn-ghost" id="btnQr" title="Show QR Code">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════
+       MAIN LAYOUT
+  ══════════════════════════════════════════════════════════ -->
+    <main class="main-layout">
+
+        <!-- LEFT PANEL: Device Discovery -->
+        <aside class="panel panel-devices">
+            <div class="panel-header">
+                <h2>Nearby Devices</h2>
+                <span class="peer-count" id="peerCount">0</span>
+            </div>
+            <ul class="device-list" id="deviceList">
+                <li class="device-item device-empty">
+                    <div class="empty-icon">📡</div>
+                    <p>Scanning for devices…</p>
+                    <small>Open this app on another device on the same Wi-Fi / LAN</small>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- CENTER PANEL: Drop Zone + Active Transfers -->
+        <section class="panel panel-main">
+
+            <!-- Drop Zone -->
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-inner">
+                    <div class="drop-icon">📂</div>
+                    <p class="drop-title">Drop files here</p>
+                    <p class="drop-sub">or <label class="file-browse-label" for="fileInput">browse</label></p>
+                    <input type="file" id="fileInput" multiple hidden />
+                    <p class="drop-hint">Select a device on the left, then drop your files</p>
+                </div>
+            </div>
+
+            <!-- Selected files queue -->
+            <div class="file-queue" id="fileQueue" style="display:none">
+                <div class="queue-header">
+                    <h3>Ready to send</h3>
+                    <button class="btn btn-ghost btn-sm" id="btnClearQueue">✕ Clear</button>
+                </div>
+                <ul class="queue-list" id="queueList"></ul>
+                <button class="btn btn-primary" id="btnSend">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                    Send to <span id="targetDeviceName">—</span>
+                </button>
+            </div>
+
+            <!-- Active Transfers -->
+            <div class="transfers-section" id="transfersSection" style="display:none">
+                <h3 class="transfers-title">Active Transfers</h3>
+                <div class="transfer-list" id="transferList"></div>
+            </div>
         </section>
+
+        <!-- RIGHT PANEL: Connection Info -->
+        <aside class="panel panel-info">
+            <div class="panel-header">
+                <h2>Connection</h2>
+            </div>
+
+            <div class="info-card">
+                <div class="info-label">Status</div>
+                <div class="info-value status-dot-wrap">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Offline</span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-label">Your LAN IP</div>
+                <div class="info-value mono" id="infoIp">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-label">Device ID</div>
+                <div class="info-value mono small" id="infoDeviceId">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-label">Server URL</div>
+                <div class="info-value mono small" id="infoUrl">—</div>
+            </div>
+
+            <div class="qr-section">
+                <p class="qr-label">Scan to join</p>
+                <div class="qr-placeholder" id="qrPlaceholder">
+                    <img id="qrImage" src="" alt="QR Code" style="display:none" />
+                    <div id="qrLoading">Loading…</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════
+       MODALS
+  ══════════════════════════════════════════════════════════ -->
+
+    <!-- Incoming transfer request -->
+    <div class="modal-overlay" id="modalIncoming" style="display:none">
+        <div class="modal">
+            <div class="modal-icon">📥</div>
+            <h2>Incoming Transfer</h2>
+            <p id="modalIncomingDesc">Device wants to send you a file.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="btnReject">Decline</button>
+                <button class="btn btn-primary" id="btnAccept">Accept</button>
+            </div>
+        </div>
     </div>
 
+    <!-- QR modal -->
+    <div class="modal-overlay" id="modalQr" style="display:none">
+        <div class="modal modal-qr">
+            <h2>Scan to Join</h2>
+            <p id="qrModalUrl" class="mono"></p>
+            <img id="qrModalImage" src="" alt="QR Code" />
+            <button class="btn btn-outline" id="btnCloseQr">Close</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+       JAVASCRIPT MODULES (loaded in dependency order)
+  ══════════════════════════════════════════════════════════ -->
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="js/app.js"></script>
+
 </body>
 
 </html>

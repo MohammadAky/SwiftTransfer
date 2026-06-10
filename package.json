@@ -1,28 +1,18 @@
 {
-  "name": "swifttransfer",
+  "name": "lan-file-transfer",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Browser-based LAN file transfer using WebRTC + Socket.IO",
+  "main": "backend/src/server.js",
   "scripts": {
     "start": "node backend/src/server.js",
     "dev": "nodemon backend/src/server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MohammadAky/SwiftTransfer.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/MohammadAky/SwiftTransfer/issues"
-  },
-  "homepage": "https://github.com/MohammadAky/SwiftTransfer#readme",
-  "description": "",
   "dependencies": {
-    "express": "^5.2.1",
-    "socket.io": "^4.8.3"
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.0.1"
   }
 }

@@ -1,24 +1,36 @@
-import { socket } from "./webrtc/signalingClient.js";
-import { getDeviceName } from "./utils/deviceId.js";
-import { renderDevices } from "./ui/deviceList.js";
+"use strict";
 
-const myDeviceName = getDeviceName();
+let mySocketId = null;
 
-function updateLocalName() {
-  const nameElement = document.getElementById("myDeviceName");
-  if (nameElement) {
-    nameElement.textContent = myDeviceName;
+const nameInput = document.getElementById("deviceNameInput");
+nameInput.value = DeviceIdentity.name;
+nameInput.addEventListener("change", () => {
+  DeviceIdentity.setName(nameInput.value);
+  notify("Device name updated", "success", 2000);
+});
+
+async function loadServerInfo() {
+  try {
+    const info = await fetch("/api/info").then((r) => r.json());
+    document.getElementById("serverUrl").textContent = info.url;
+    document.getElementById("infoIp").textContent = info.ip;
+    document.getElementById("infoUrl").textContent = info.url;
+    document.getElementById("infoDeviceId").textContent = DeviceIdentity.id.slice(0, 18) + "…";
+  } catch (e) {
+    console.error("[APP] Server info error:", e);
   }
 }
+loadServerInfo();
 
-socket.on("connect", () => {
-  socket.emit("register-device", {
-    name: myDeviceName,
-  });
+SignalingClient.connect();
+SignalingClient.on("connected", () => {
+  document.getElementById("statusDot").className = "status-dot online";
+  document.getElementById("statusText").textContent = "Connected";
 });
-
-socket.on("devices", (devices) => {
-  renderDevices(devices);
+SignalingClient.on("disconnected", () => {
+  document.getElementById("statusDot").className = "status-dot offline";
+  document.getElementById("statusText").textContent = "Disconnected";
+  mySocketId = null;
 });
-
-updateLocalName();
+SignalingClient.on("registered", (data) => { mySocketId = data.socketId; });
+SignalingClient.on("peer-list", (peers) => { DeviceListUI.render(peers, mySocketId); });

@@ -34,3 +34,11 @@ SignalingClient.on("disconnected", () => {
 });
 SignalingClient.on("registered", (data) => { mySocketId = data.socketId; });
 SignalingClient.on("peer-list", (peers) => { DeviceListUI.render(peers, mySocketId); });
+
+SignalingClient.on("offer", async ({ from, offer }) => { await handleOffer(from, offer); });
+SignalingClient.on("answer", async ({ from, answer }) => { await handleAnswer(from, answer); });
+SignalingClient.on("ice-candidate", async ({ from, candidate }) => { await handleIceCandidate(from, candidate); });
+
+onDataChannelEvent("open", ({ remoteId }) => {
+  console.log("[APP] DataChannel open with", remoteId);
+});

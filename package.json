@@ -1,16 +1,20 @@
-{
+﻿{
   "name": "lan-file-transfer",
   "version": "1.0.0",
   "description": "Browser-based LAN file transfer using WebRTC + Socket.IO",
   "main": "backend/src/server.js",
   "scripts": {
-    "start": "node backend/src/server.js",
-    "dev": "nodemon backend/src/server.js"
+    "start":   "node backend/src/server.js",
+    "dev":     "nodemon backend/src/server.js",
+    "install-all": "npm install"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "express":   "^4.18.2",
     "socket.io": "^4.6.1",
-    "cors": "^2.8.5"
+    "qrcode":    "^1.5.3",
+    "uuid":      "^9.0.0",
+    "cors":      "^2.8.5",
+    "ip":        "^1.1.8"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

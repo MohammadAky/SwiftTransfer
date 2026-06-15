@@ -48,3 +48,6 @@ coverage/
 
 # VS Code workspace settings
 *.code-workspace
+
+# Local build artifacts
+.commit-staging/

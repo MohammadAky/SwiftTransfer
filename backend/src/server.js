@@ -9,7 +9,7 @@
 //   │  └── GET /api/info  → returns server IP & port      │
 //   │                                                     │
 //   │  Socket.IO (WebSocket upgrade on same port)         │
-//   │  └── Handles: register, offer, answer, ice-*, ...  │
+//   │  └── Handles: register, offer, answer, ice-*, ...   │
 //   └─────────────────────────────────────────────────────┘
 //
 // NETWORKING: HTTP and WebSocket share TCP port 3000.
@@ -18,29 +18,29 @@
 
 "use strict";
 
-const express   = require("express");
-const http      = require("http");
+const express = require("express");
+const http = require("http");
 const { Server } = require("socket.io");
-const path      = require("path");
-const os        = require("os");
-const { PORT }  = require("./config");
+const path = require("path");
+const os = require("os");
+const { PORT } = require("./config");
 const { registerSignalingHandlers } = require("./signaling/signalingHandler");
 const { generateQR } = require("./utils/qrHelper");
 
 // ── 1. Create Express app and raw HTTP server ──────────────────────────────
 // NETWORKING: We create the HTTP server manually (not app.listen) so that
 // Socket.IO can attach to the same TCP socket.
-const app    = express();
+const app = express();
 const server = http.createServer(app);
 
 // ── 2. Attach Socket.IO to the HTTP server ─────────────────────────────────
 // NETWORKING: Socket.IO negotiates: polling → WebSocket upgrade.
 // cors: "*" allows any LAN IP to connect (fine for local networks).
 const io = new Server(server, {
-  cors:              { origin: "*", methods: ["GET", "POST"] },
+  cors: { origin: "*", methods: ["GET", "POST"] },
   maxHttpBufferSize: 1e6, // 1 MB max per Socket.IO message (signaling only)
-  pingTimeout:       20000,
-  pingInterval:      10000,
+  pingTimeout: 20000,
+  pingInterval: 10000,
 });
 
 // ── 3. Serve static frontend files ────────────────────────────────────────
@@ -63,7 +63,7 @@ function getLanIp() {
   return "127.0.0.1";
 }
 
-const LAN_IP  = getLanIp();
+const LAN_IP = getLanIp();
 const BASE_URL = `http://${LAN_IP}:${PORT}`;
 
 // ── 5. REST API endpoints ──────────────────────────────────────────────────
@@ -96,11 +96,11 @@ io.on("connection", (socket) => {
 server.listen(PORT, "0.0.0.0", () => {
   console.log("");
   console.log("╔══════════════════════════════════════════════════╗");
-  console.log("║       LAN File Transfer Server — RUNNING         ║");
+  console.log("║       Swift File Transfer Server — RUNNING       ║");
   console.log("╠══════════════════════════════════════════════════╣");
   console.log(`║  Local:   http://localhost:${PORT}                  ║`);
   console.log(`║  LAN:     ${BASE_URL.padEnd(38)} ║`);
-  console.log("║  Share the LAN URL or scan the QR in the app    ║");
+  console.log("║  Share the LAN URL or scan the QR in the app     ║");
   console.log("╚══════════════════════════════════════════════════╝");
   console.log("");
 });

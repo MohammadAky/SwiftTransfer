@@ -1,4 +1,4 @@
-﻿# LAN Transfer — Browser-based P2P File Transfer
+﻿# SWiftTransfer — Browser-based P2P File Transfer
 
 A browser-based LAN file transfer application similar to ShareIt, Zapya, and LocalSend.
 Files are sent **peer-to-peer** using **WebRTC DataChannel** — the server is only a
@@ -86,15 +86,3 @@ Device A (Sender)              Signaling Server              Device B (Receiver)
      |                                                             |
      [ Download triggered automatically on receiver ]
 ```
-
-## Phases
-
-| Phase | Feature |
-|-------|---------|
-| 1 | Server setup — Express + Socket.IO |
-| 2 | Device discovery — registry + heartbeat |
-| 3 | Signaling — SDP offer/answer/ICE relay |
-| 4 | WebRTC DataChannel establishment |
-| 5 | Chunked file transfer engine |
-| 6 | Flow control + speed/ETA display |
-| 7 | QR pairing + drag-and-drop + multi-file |
